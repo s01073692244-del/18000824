@@ -210,10 +210,30 @@ footer .disc{margin-top:12px;font-size:13px;color:#878e9a}
 .mbar .m1{background:var(--red);color:#fff}.mbar .m2{background:#e8f1ff;color:var(--blue)}.mbar .m3{background:#fee500;color:#191919}
 footer{padding-bottom:40px}}
 @media(prefers-reduced-motion:reduce){.tbb{animation:none}.pcall a.big .pi,.pcall a.big .ck{animation:none}.slide{transition:none}.live ul{animation:none}html{scroll-behavior:auto}}
+
+/* ===== 상단 이벤트 띠 (노랑) ===== */
+.evbar{position:relative;overflow:hidden;background:#FFD400;background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,.22) 0 14px,transparent 14px 28px);background-size:40px 40px;animation:evstripe 1.2s linear infinite;color:#111;border-bottom:3px solid #111}
+@keyframes evstripe{to{background-position:40px 0}}
+.evbar .in{max-width:1240px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:center;gap:14px;min-height:48px;font-size:18px;letter-spacing:-.03em;text-align:center}
+.evbar .tag{background:#111;color:#FFD400;font-weight:900;font-size:13px;padding:5px 12px;border-radius:6px;letter-spacing:.1em;animation:evflash .9s ease-in-out infinite alternate}
+@keyframes evflash{from{background:#111;color:#FFD400;transform:scale(1)}to{background:#E8192C;color:#fff;transform:scale(1.08)}}
+.evbar b{font-weight:900}
+.evbar mark{background:#E8192C;color:#fff;font-weight:900;padding:2px 9px;border-radius:6px;margin-left:2px;box-shadow:0 2px 0 #9e0d18}
+.evbar .sub{font-size:14px;font-weight:700;color:#3a3200}
+@media(max-width:600px){
+  .evbar .in{flex-wrap:wrap;gap:4px 8px;padding:7px 10px;font-size:14px}
+  .evbar .tag{font-size:11px;padding:3px 8px}
+  .evbar mark{padding:1px 6px}
+  .evbar .sub{display:block;width:100%;font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.evbar,.evbar .tag{animation:none}}
 </style>
 </head>
 <body>
 
+<div class="evbar" role="note">
+<div class="in"><span class="tag">EVENT</span><b>신용카드 결제도 <mark>현금과 동일한 금액!</mark></b><span class="sub">카드 결제 시 추가 요금 없이 그대로</span></div>
+</div>
 <header><div class="wrap hd">
 <a class="logo" href="#top" aria-label="(주)전국통합화물 홈">
 <svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a1f"/><stop offset="1" stop-color="#f0412b"/></linearGradient></defs><rect width="48" height="48" rx="13" fill="url(#lg)"/><path d="M12 19l10-5 10 5v12l-10 5-10-5z" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><path d="M12 19l10 5 10-5M22 24v12" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><path d="M30 13h7v7M37 13l-7 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
