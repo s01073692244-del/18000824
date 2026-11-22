@@ -227,6 +227,20 @@ footer{padding-bottom:40px}}
   .evbar .sub{display:block;width:100%;font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){.evbar,.evbar .tag{animation:none}}
+
+/* ===== 전화·핸드폰 아이콘 움직임 강조 ===== */
+@keyframes telRing{0%,55%,100%{transform:rotate(0)}5%{transform:rotate(-18deg)}10%{transform:rotate(16deg)}15%{transform:rotate(-14deg)}20%{transform:rotate(12deg)}25%{transform:rotate(-8deg)}30%{transform:rotate(6deg)}35%{transform:rotate(0)}}
+@keyframes telShake{0%,55%,100%{transform:translateX(0) rotate(0)}6%{transform:translateX(-2px) rotate(-10deg)}12%{transform:translateX(2px) rotate(10deg)}18%{transform:translateX(-2px) rotate(-8deg)}24%{transform:translateX(2px) rotate(8deg)}30%{transform:translateX(0) rotate(0)}}
+@keyframes telGlowY{0%{box-shadow:0 0 0 0 rgba(255,225,77,.75)}70%{box-shadow:0 0 0 16px rgba(255,225,77,0)}100%{box-shadow:0 0 0 0 rgba(255,225,77,0)}}
+@keyframes telGlowR{0%{box-shadow:0 0 0 0 rgba(238,43,43,.5)}70%{box-shadow:0 0 0 14px rgba(238,43,43,0)}100%{box-shadow:0 0 0 0 rgba(238,43,43,0)}}
+@keyframes telBtn{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.pcall a.big .pi{animation:telGlowY 1.8s ease-out infinite!important}
+.pcall a.big .pi svg{animation:telRing 1.8s ease-in-out infinite}
+.direct .ph{animation:telGlowR 1.8s ease-out infinite .9s}
+.direct .ph svg{animation:telShake 1.8s ease-in-out infinite .9s}
+.qbar .q1 svg{animation:telRing 1.8s ease-in-out infinite}
+.mbar .m1{animation:telBtn 1.2s ease-in-out infinite,telGlowR 1.8s ease-out infinite}
+@media(prefers-reduced-motion:reduce){.pcall a.big .pi,.pcall a.big .pi svg,.direct .ph,.direct .ph svg,.qbar .q1 svg,.mbar .m1{animation:none!important}}
 </style>
 </head>
 <body>
