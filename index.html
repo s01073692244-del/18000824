@@ -241,6 +241,24 @@ footer{padding-bottom:40px}}
 .qbar .q1 svg{animation:telRing 1.8s ease-in-out infinite}
 .mbar .m1{animation:telBtn 1.2s ease-in-out infinite,telGlowR 1.8s ease-out infinite}
 @media(prefers-reduced-motion:reduce){.pcall a.big .pi,.pcall a.big .pi svg,.direct .ph,.direct .ph svg,.qbar .q1 svg,.mbar .m1{animation:none!important}}
+
+/* PC 양쪽 여백 꾸미기 */
+@media(min-width:1100px){
+body{background:#eef2f8}
+.hero{background:linear-gradient(120deg,#0b2a7a 0%,#1f4fd6 55%,#3a7bff 100%);padding:30px 0 34px;position:relative;overflow:hidden}
+.hero:before{content:'';position:absolute;inset:0;background:radial-gradient(600px 300px at 10% 20%,rgba(255,255,255,.12),transparent 60%),radial-gradient(500px 260px at 92% 80%,rgba(255,225,77,.18),transparent 60%)}
+.hero .wrap{position:relative;border-radius:18px;overflow:hidden;padding:0!important;box-shadow:0 24px 60px rgba(0,10,40,.45)}
+}
+.sideL{display:none}
+@media(min-width:1500px){
+.sideL{display:block;position:fixed;left:18px;top:50%;transform:translateY(-50%);width:120px;z-index:50;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,20,60,.18);text-align:center}
+.sideL .t{background:#e53935;color:#fff;padding:10px 6px;font-weight:800;font-size:13px;line-height:1.4}
+.sideL .t b{display:block;font-size:11px;letter-spacing:2px;opacity:.9}
+.sideL .p{padding:10px 6px;border-bottom:1px solid #eef;font-size:12px;color:#333;line-height:1.4}
+.sideL .p strong{display:block;color:#1f4fd6;font-size:15px}
+.sideL .h{background:#1f4fd6;color:#fff;padding:10px 6px;font-weight:800;font-size:13px;line-height:1.4}
+.sideL .h a{color:#ffe14d;display:block;font-size:14px;text-decoration:none;margin-top:3px}
+}
 </style>
 </head>
 <body>
@@ -524,5 +542,6 @@ var BOARD={
   dr.addEventListener('click',function(e){if(e.target===dr||e.target.tagName==='A')op(false);});
 })();
 </script>
+<aside class="sideL"><div class="t"><b>EVENT</b>신용카드 환영!<br>현금과 동일</div><div class="p">1톤 용달<strong>4만원~</strong></div><div class="p">원룸이사<strong>10만원~</strong></div><div class="p">퀵서비스<strong>8천원~</strong></div><div class="h">24시간<br>배차상담<a href="tel:18000824">1800-0824</a></div></aside>
 </body>
 </html>
