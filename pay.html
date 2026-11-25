@@ -99,6 +99,7 @@ const CONFIG = {
     bizNo: "519-88-01398",
     mail:  "제2026-인천서해-1372호",       // 통신판매업 신고번호
     cargo: "제서-3-531호",                // 화물운송 허가번호
+    addr:  "인천 서구 경중로 12, 105동 3005호 (북청라트레시엘)",
     email: "sbxms7@naver.com"
   }
 };
@@ -113,7 +114,7 @@ const won = (n) => Number(n).toLocaleString("ko-KR") + "원";
   const b = CONFIG.biz;
   $("bizInfo").textContent =
     `${b.name} | 대표 ${b.ceo} | 사업자등록번호 ${b.bizNo} | 통신판매업 ${b.mail} | ` +
-    `화물운송 허가 ${b.cargo} | 고객센터 ${CONFIG.tel} | ${b.email}`;
+    `화물운송 허가 ${b.cargo} | 주소 ${b.addr} | 고객센터 ${CONFIG.tel} | ${b.email}`;
   document.querySelectorAll(".tel").forEach((el) => (el.textContent = CONFIG.tel));
 })();
 
