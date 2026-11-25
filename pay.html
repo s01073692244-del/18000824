@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>카드결제 | (주)전국통합화물</title>
+<script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
+<style>
+  :root { --main:#1450a3; --bg:#f4f6fa; --line:#dfe3ea; --text:#222; --sub:#666; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; background:var(--bg); color:var(--text); }
+  header { background:var(--main); color:#fff; padding:16px; text-align:center; font-weight:700; font-size:18px; }
+  main { max-width:480px; margin:0 auto; padding:16px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:20px; margin-bottom:14px; }
+  .row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed var(--line); }
+  .row:last-child { border-bottom:0; }
+  .row span:first-child { color:var(--sub); }
+  .amount { font-size:28px; font-weight:800; color:var(--main); text-align:right; margin-top:10px; }
+  label { display:block; font-size:14px; color:var(--sub); margin:12px 0 4px; }
+  input { width:100%; padding:12px; font-size:16px; border:1px solid var(--line); border-radius:8px; }
+  .agree { display:flex; gap:8px; align-items:flex-start; font-size:14px; margin-top:14px; }
+  .agree input { width:auto; margin-top:3px; }
+  button { width:100%; padding:16px; font-size:18px; font-weight:700; color:#fff; background:var(--main); border:0; border-radius:10px; margin-top:16px; cursor:pointer; }
+  button:disabled { background:#9aa7bb; }
+  .msg { text-align:center; padding:24px 8px; line-height:1.6; }
+  .ok { color:#137a3a; font-size:22px; font-weight:800; }
+  .fail { color:#c0392b; font-size:20px; font-weight:800; }
+  details { font-size:13px; color:var(--sub); line-height:1.6; }
+  details summary { cursor:pointer; color:var(--text); font-weight:600; }
+  footer { font-size:12px; color:var(--sub); text-align:center; line-height:1.7; padding:16px; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<header>(주)전국통합화물 카드결제</header>
+<main>
+
+  <!-- 결제 화면 -->
+  <section id="payView" class="hidden">
+    <div class="card">
+      <div class="row"><span>내용</span><span id="vName"></span></div>
+      <div class="row"><span>접수번호</span><span id="vOrder"></span></div>
+      <div class="amount" id="vAmount"></div>
+    </div>
+    <div class="card">
+      <label for="cName">결제자 이름</label>
+      <input id="cName" autocomplete="name" placeholder="홍길동">
+      <label for="cPhone">휴대폰 번호</label>
+      <input id="cPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="01012345678">
+      <div class="agree">
+        <input type="checkbox" id="cAgree">
+        <label for="cAgree" style="margin:0;color:var(--text)"><a href="/refund.html" target="_blank">취소·환불 규정</a>과 <a href="/privacy.html" target="_blank">개인정보처리방침</a>을 확인했으며 결제에 동의합니다.</label>
+      </div>
+      <button id="payBtn">카드로 결제하기</button>
+    </div>
+    <div class="card">
+      <details>
+        <summary>취소·환불 규정</summary>
+        <p><b>■ 화물운송·퀵서비스 (당일·즉시 배차)</b><br>
+        1. 배차 전 취소: 전액 환불합니다.<br>
+        2. 배차 후 차량이 상차지로 출발하기 전 취소: 전액 환불합니다.<br>
+        3. 차량이 상차지로 이동 중일 때 취소: 이동한 거리에 해당하는 공차 운임(기본운임 범위 내)을 공제하고 환불합니다. 공제 금액은 취소 접수 시 먼저 안내합니다.<br>
+        4. 상차지 도착 후 고객 사정으로 운송하지 못한 경우: 기본운임을 공제하고 환불합니다.<br>
+        5. 상차 후 고객 요청으로 중단한 경우: 실제 운송한 구간의 운임을 공제하고 환불합니다.</p>
+        <p><b>■ 용달이사 (날짜 예약)</b><br>
+        1. 이사 예정일 1일 전까지 취소: 결제 금액 중 계약금을 제외하고 환불합니다. (계약금은 예약 시 안내한 금액)<br>
+        2. 이사 예정일 당일 취소: 계약금과 계약금 상당액을 합한 금액을 공제하고 환불합니다.<br>
+        3. 당사 사정으로 이사를 하지 못한 경우: 결제 금액 전액을 환불하고, 「이사화물 표준약관」에서 정한 기준에 따라 손해배상합니다.</p>
+        <p><b>■ 공통</b><br>
+        1. 당사 사정(차량 고장, 배차 불가 등)으로 운송하지 못한 경우 결제 금액 전액을 환불합니다.<br>
+        2. 천재지변, 도로 통제 등 불가항력으로 운송하지 못한 경우 전액 환불합니다.<br>
+        3. 대기 시간 초과, 경유지 추가, 짐 추가 등으로 요금이 바뀌는 경우 운송 전에 먼저 안내하고 동의를 받습니다.<br>
+        4. 운송 중 화물이 파손·분실된 경우 관련 법령과 표준약관에 따라 배상합니다. 파손·분실은 화물을 받은 날부터 30일 이내에 알려 주세요.<br>
+        5. 환불은 카드 승인 취소로 처리하며, 카드사에 따라 영업일 기준 3~7일이 걸릴 수 있습니다.<br>
+        6. 이 규정에 없는 사항은 「화물자동차 운수사업법」, 「이사화물 표준약관」 등 관련 법령과 상관례에 따릅니다.<br>
+        7. 취소·환불 문의: <span class="tel"></span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 결과 / 오류 화면 -->
+  <section id="msgView" class="card msg hidden"></section>
+
+</main>
+<footer><div style="margin-bottom:6px"><a href="/terms.html" style="color:#444;margin:0 6px">이용약관</a><a href="/privacy.html" style="color:#444;margin:0 6px"><b>개인정보처리방침</b></a><a href="/refund.html" style="color:#444;margin:0 6px">취소·환불 규정</a></div><div id="bizInfo"></div></footer>
+
+<script>
+/* ===== 여기만 수정하세요 ===================================== */
+const CONFIG = {
+  storeId:    "store-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", // 포트원 관리자 > 결제 연동 > 상점 아이디
+  channelKey: "channel-key-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", // 포트원 관리자 > 결제 연동 > 채널 키
+  minAmount:  1000,
+  maxAmount:  5000000,
+  tel:        "1800-0824",
+  biz: {
+    name:  "(주)전국통합화물",
+    ceo:   "최관식",
+    bizNo: "519-88-01398",
+    mail:  "제2026-인천서해-1372호",       // 통신판매업 신고번호
+    cargo: "제서-3-531호",                // 화물운송 허가번호
+    email: "sbxms7@naver.com"
+  }
+};
+/* ============================================================== */
+
+const $ = (id) => document.getElementById(id);
+const q = new URLSearchParams(location.search);
+const won = (n) => Number(n).toLocaleString("ko-KR") + "원";
+
+// 하단 사업자 정보
+(function () {
+  const b = CONFIG.biz;
+  $("bizInfo").textContent =
+    `${b.name} | 대표 ${b.ceo} | 사업자등록번호 ${b.bizNo} | 통신판매업 ${b.mail} | ` +
+    `화물운송 허가 ${b.cargo} | 고객센터 ${CONFIG.tel} | ${b.email}`;
+  document.querySelectorAll(".tel").forEach((el) => (el.textContent = CONFIG.tel));
+})();
+
+function showMsg(cls, title, body) {
+  $("payView").classList.add("hidden");
+  const v = $("msgView");
+  v.innerHTML = "";
+  const t = document.createElement("div"); t.className = cls; t.textContent = title;
+  const p = document.createElement("p");   p.textContent = body;
+  v.append(t, p);
+  v.classList.remove("hidden");
+}
+
+// ---- 1) 모바일 결제 후 돌아온 경우 (redirectUrl) ----
+if (q.has("paymentId") && (q.has("code") || q.has("transactionType"))) {
+  if (q.get("code")) {
+    showMsg("fail", "결제가 완료되지 않았습니다", (q.get("message") || "다시 시도해 주세요.") + ` 문의: ${CONFIG.tel}`);
+  } else {
+    showMsg("ok", "결제가 완료되었습니다", `결제번호 ${q.get("paymentId")} · 감사합니다. 문의: ${CONFIG.tel}`);
+  }
+} else {
+  // ---- 2) 결제 화면 ----
+  const amount = parseInt(q.get("amount"), 10);
+  const name = (q.get("name") || "화물운송").slice(0, 40);
+  const order = (q.get("order") || "").replace(/[^0-9A-Za-z-]/g, "").slice(0, 20);
+
+  if (!Number.isInteger(amount) || amount < CONFIG.minAmount || amount > CONFIG.maxAmount) {
+    showMsg("fail", "결제 링크가 올바르지 않습니다", `받으신 링크를 다시 확인하시거나 ${CONFIG.tel}로 연락 주세요.`);
+  } else {
+    $("vName").textContent = name;
+    $("vOrder").textContent = order || "-";
+    $("vAmount").textContent = won(amount);
+    if (q.get("cname")) $("cName").value = q.get("cname").slice(0, 20);
+    if (q.get("cphone")) $("cPhone").value = q.get("cphone").replace(/\D/g, "").slice(0, 11);
+    $("payView").classList.remove("hidden");
+
+    $("payBtn").addEventListener("click", async () => {
+      const fullName = $("cName").value.trim();
+      const phone = $("cPhone").value.replace(/\D/g, "");
+      if (!fullName) return alertBox("결제자 이름을 입력해 주세요.");
+      if (!/^01\d{8,9}$/.test(phone)) return alertBox("휴대폰 번호를 정확히 입력해 주세요.");
+      if (!$("cAgree").checked) return alertBox("취소·환불 규정에 동의해 주세요.");
+
+      const paymentId = `PAY-${order || "N"}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+      $("payBtn").disabled = true;
+      try {
+        const res = await PortOne.requestPayment({
+          storeId: CONFIG.storeId,
+          channelKey: CONFIG.channelKey,
+          paymentId,
+          orderName: order ? `${name} (${order})` : name,
+          totalAmount: amount,
+          currency: "CURRENCY_KRW",
+          payMethod: "CARD",
+          customer: { fullName, phoneNumber: phone },
+          redirectUrl: location.origin + location.pathname, // 모바일 결제 후 이 페이지로 돌아옴
+        });
+        if (!res || res.code) {
+          $("payBtn").disabled = false;
+          alertBox((res && res.message) || "결제가 취소되었습니다.");
+        } else {
+          showMsg("ok", "결제가 완료되었습니다", `결제번호 ${res.paymentId} · 감사합니다. 문의: ${CONFIG.tel}`);
+        }
+      } catch (e) {
+        $("payBtn").disabled = false;
+        alertBox("결제창을 여는 중 문제가 생겼습니다. 잠시 후 다시 시도해 주세요.");
+      }
+    });
+  }
+}
+
+// alert() 대신 화면 상단 안내 (일부 인앱 브라우저에서 alert가 막히는 경우 대비)
+function alertBox(text) {
+  let el = $("toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "toast";
+    el.style.cssText = "position:fixed;left:50%;top:16px;transform:translateX(-50%);background:#333;color:#fff;padding:12px 18px;border-radius:8px;font-size:15px;z-index:9;max-width:90%;";
+    document.body.appendChild(el);
+  }
+  el.textContent = text;
+  el.style.display = "block";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => (el.style.display = "none"), 2500);
+}
+</script>
+</body>
+</html>

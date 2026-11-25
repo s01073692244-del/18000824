@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>결제 링크 만들기 (직원용)</title>
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; background:#f4f6fa; color:#222; }
+  header { background:#333; color:#fff; padding:14px; text-align:center; font-weight:700; }
+  main { max-width:480px; margin:0 auto; padding:16px; }
+  .card { background:#fff; border:1px solid #dfe3ea; border-radius:12px; padding:18px; margin-bottom:14px; }
+  label { display:block; font-size:14px; color:#666; margin:12px 0 4px; }
+  input, textarea { width:100%; padding:12px; font-size:16px; border:1px solid #dfe3ea; border-radius:8px; font-family:inherit; }
+  textarea { height:130px; resize:vertical; }
+  .quick { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .quick button { flex:1 0 30%; padding:8px; font-size:14px; background:#eef2f8; color:#1450a3; border:1px solid #cdd6e4; border-radius:6px; }
+  .btns { display:flex; gap:8px; margin-top:14px; }
+  .btns button { flex:1; padding:14px; font-size:16px; font-weight:700; color:#fff; background:#1450a3; border:0; border-radius:8px; }
+  .btns button.alt { background:#137a3a; }
+  .note { font-size:13px; color:#666; line-height:1.6; }
+</style>
+</head>
+<body>
+<header>결제 링크 만들기 (직원용)</header>
+<main>
+  <div class="card">
+    <label for="amount">결제 금액 (원)</label>
+    <input id="amount" type="text" inputmode="numeric" placeholder="150000">
+    <label for="name">내용</label>
+    <input id="name" value="화물운송">
+    <div class="quick">
+      <button data-v="화물운송">화물운송</button>
+      <button data-v="용달이사">용달이사</button>
+      <button data-v="퀵서비스">퀵서비스</button>
+    </div>
+    <label for="order">접수번호 (장부 번호, 선택)</label>
+    <input id="order" placeholder="20261125-01">
+    <label for="cname">손님 이름 (선택, 미리 채워짐)</label>
+    <input id="cname">
+    <label for="cphone">손님 휴대폰</label>
+    <input id="cphone" type="tel" inputmode="numeric" placeholder="01012345678">
+  </div>
+
+  <div class="card">
+    <label for="msg">보낼 문자 (수정 가능)</label>
+    <textarea id="msg"></textarea>
+    <div class="btns">
+      <button id="copyBtn">복사하기</button>
+      <button id="smsBtn" class="alt">문자 보내기</button>
+    </div>
+  </div>
+
+  <p class="note">· 결제가 들어오면 포트원 관리자 화면에서 <b>금액·접수번호가 맞는지 확인한 뒤</b> 배차하세요.<br>
+  · 이 페이지 주소는 손님에게 알려주지 마세요.</p>
+</main>
+
+<script>
+// 결제 페이지 주소 (홈페이지에 올린 pay.html 주소로 맞추세요)
+const PAY_URL = "https://www.18000824.com/pay.html";
+const COMPANY = "(주)전국통합화물";
+const TEL = "1800-0824";
+
+const $ = (id) => document.getElementById(id);
+const digits = (s) => (s || "").replace(/\D/g, "");
+
+function buildLink() {
+  const p = new URLSearchParams();
+  p.set("amount", digits($("amount").value));
+  p.set("name", $("name").value.trim() || "화물운송");
+  if ($("order").value.trim()) p.set("order", $("order").value.trim());
+  if ($("cname").value.trim()) p.set("cname", $("cname").value.trim());
+  // 손님 휴대폰 번호는 링크(URL)에 넣지 않습니다 — 결제 화면에서 직접 입력
+  return PAY_URL + "?" + p.toString();
+}
+
+function refresh() {
+  const amt = parseInt(digits($("amount").value), 10);
+  const amtTxt = Number.isInteger(amt) ? amt.toLocaleString("ko-KR") + "원" : "(금액 입력)";
+  $("msg").value =
+    `[${COMPANY}] ${$("name").value.trim() || "화물운송"} 카드결제 안내\n` +
+    `결제금액: ${amtTxt}\n` +
+    `아래 링크를 눌러 결제해 주세요.\n${buildLink()}\n` +
+    `문의: ${TEL}`;
+}
+
+["amount", "name", "order", "cname"].forEach((id) => $(id).addEventListener("input", refresh));
+$("amount").addEventListener("blur", () => {
+  const n = parseInt(digits($("amount").value), 10);
+  if (Number.isInteger(n)) $("amount").value = n.toLocaleString("ko-KR");
+});
+document.querySelectorAll(".quick button").forEach((b) =>
+  b.addEventListener("click", () => { $("name").value = b.dataset.v; refresh(); })
+);
+
+function valid() {
+  const n = parseInt(digits($("amount").value), 10);
+  if (!Number.isInteger(n) || n < 1000) { $("amount").focus(); return false; }
+  return true;
+}
+
+$("copyBtn").addEventListener("click", async () => {
+  if (!valid()) return;
+  try { await navigator.clipboard.writeText($("msg").value); $("copyBtn").textContent = "복사됨 ✓"; }
+  catch { $("msg").select(); document.execCommand("copy"); $("copyBtn").textContent = "복사됨 ✓"; }
+  setTimeout(() => ($("copyBtn").textContent = "복사하기"), 1500);
+});
+
+$("smsBtn").addEventListener("click", () => {
+  if (!valid()) return;
+  const to = digits($("cphone").value);
+  // 안드로이드(갤럭시)·아이폰 모두 동작하는 형식
+  const sep = /iPhone|iPad/.test(navigator.userAgent) ? "&" : "?";
+  location.href = `sms:${to}${sep}body=${encodeURIComponent($("msg").value)}`;
+});
+
+refresh();
+</script>
+</body>
+</html>
