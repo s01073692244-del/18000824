@@ -33,11 +33,51 @@
   details summary { cursor:pointer; color:var(--text); font-weight:600; }
   footer { font-size:12px; color:var(--sub); text-align:center; line-height:1.7; padding:16px; }
   .hidden { display:none; }
+  .test { background:#fff4d6; color:#7a5a00; font-size:13px; padding:10px 12px; border-radius:8px; margin-bottom:14px; }
+  h2 { font-size:18px; margin:0 0 4px; }
+  .sub { font-size:14px; color:var(--sub); margin:0 0 14px; }
+  .prod { display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:#fff; color:var(--text); border:2px solid var(--line); border-radius:12px; padding:14px; margin:0 0 10px; font-size:15px; font-weight:400; cursor:pointer; }
+  .prod:hover { border-color:var(--main); background:#f3f6fb; }
+  .prod .info { flex:1; }
+  .prod .nm { font-weight:700; }
+  .prod .ds { font-size:12.5px; color:var(--sub); }
+  .prod .pr { font-weight:800; font-size:17px; color:var(--main); white-space:nowrap; }
+  .estBtn { margin-top:10px; font-size:16px; padding:13px; }
+  ul.guide { padding-left:18px; margin:0; font-size:13.5px; color:#444; line-height:1.6; }
+  ul.guide li { margin-bottom:6px; }
+  .back { display:block; margin:12px auto 0; font-size:14px; color:var(--sub); background:none; padding:0; width:auto; text-decoration:underline; }
 </style>
 </head>
 <body>
 <header>(주)전국통합화물 카드결제</header>
 <main>
+  <div class="test" id="testNotice">⚠ 현재 테스트 모드입니다. 실제 대금이 청구되지 않습니다.</div>
+
+  <!-- 상품 선택 화면 (링크 없이 들어온 경우) -->
+  <section id="shopView" class="hidden">
+    <div class="card">
+      <h2>서비스 결제</h2>
+      <p class="sub">이용하실 서비스를 선택해 주세요. (수도권 출발 기준 기본 운임)</p>
+      <div id="prodList"></div>
+    </div>
+    <div class="card">
+      <h2>상담 견적 금액 결제</h2>
+      <p class="sub">전화·문자로 안내받은 견적 금액이 있으면 입력 후 결제해 주세요.</p>
+      <input id="estAmount" type="text" inputmode="numeric" placeholder="예: 150000">
+      <input id="estName" placeholder="내용 (예: 11/28 1톤 이사 인천→서울)" style="margin-top:8px">
+      <button id="estBtn" class="estBtn" type="button">견적 금액 결제하기</button>
+    </div>
+    <div class="card">
+      <h2>이용 안내</h2>
+      <ul class="guide">
+        <li><b>운송 시점:</b> 화물·퀵은 결제 확인 후 즉시 배차(24시간), 용달이사는 예약하신 날짜에 운송합니다.</li>
+        <li>기본 운임은 표시된 거리 구간 기준입니다. 대기 시간 초과, 경유지·짐 추가 등으로 요금이 달라지면 <b>운송 전에 미리 안내하고 동의를 받습니다.</b></li>
+        <li>100km 초과 구간, 대형 차량은 상담 후 견적 금액으로 결제해 주세요.</li>
+        <li>취소·환불은 <a href="/refund.html" target="_blank">취소·환불 규정</a>에 따르며, 카드 결제는 승인 취소로 환불됩니다(카드사별 영업일 3~7일).</li>
+        <li>문의: <a href="tel:18000824">1800-0824</a> (24시간)</li>
+      </ul>
+    </div>
+  </section>
 
   <!-- 결제 화면 -->
   <section id="payView" class="hidden">
@@ -56,6 +96,7 @@
         <label for="cAgree" style="margin:0;color:var(--text)"><a href="/refund.html" target="_blank">취소·환불 규정</a>과 <a href="/privacy.html" target="_blank">개인정보처리방침</a>을 확인했으며 결제에 동의합니다.</label>
       </div>
       <button id="payBtn">카드로 결제하기</button>
+      <button id="backBtn" class="back hidden" type="button">← 다른 서비스 선택</button>
     </div>
     <div class="card">
       <details>
@@ -91,8 +132,9 @@
 <script>
 /* ===== 여기만 수정하세요 ===================================== */
 const CONFIG = {
-  storeId:    "store-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", // 포트원 관리자 > 결제 연동 > 상점 아이디
-  channelKey: "channel-key-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", // 포트원 관리자 > 결제 연동 > 채널 키
+  storeId:    "store-6dd33cc4-d834-4d3d-abad-b5744102c548", // 포트원 관리자 > 결제 연동 > 상점 아이디
+  channelKey: "channel-key-f4583fdd-653e-48d2-bd7f-169d463b517c", // 포트원 관리자 > 결제 연동 > 채널 키
+  isTest:     true, // 실결제 승인 후 false로 바꾸고 channelKey를 실연동 채널키로 교체
   minAmount:  1000,
   maxAmount:  5000000,
   tel:        "1800-0824",
@@ -106,11 +148,18 @@ const CONFIG = {
     email: "sbxms7@naver.com"
   }
 };
+/* 판매 상품 (금액 수정은 여기서) */
+const PRODUCTS = [
+  { name: "오토바이 퀵 (10km 이내)", desc: "서류·소형 물품 · 즉시 배차",  price: 12000 },
+  { name: "1톤 용달 (10km 이내)",    desc: "화물·용달 운송 · 즉시 배차",  price: 40000 },
+  { name: "원룸·소형이사 기본",       desc: "1톤 용달이사 · 예약일 운송",  price: 100000 },
+];
 /* ============================================================== */
 
 const $ = (id) => document.getElementById(id);
 const q = new URLSearchParams(location.search);
 const won = (n) => Number(n).toLocaleString("ko-KR") + "원";
+if (!CONFIG.isTest) $("testNotice").style.display = "none";
 
 // 하단 사업자 정보
 (function () {
@@ -140,20 +189,60 @@ if (q.has("paymentId") && (q.has("code") || q.has("transactionType"))) {
   }
 } else {
   // ---- 2) 결제 화면 ----
-  const amount = parseInt(q.get("amount"), 10);
-  const name = (q.get("name") || "화물운송").slice(0, 40);
-  const order = (q.get("order") || "").replace(/[^0-9A-Za-z-]/g, "").slice(0, 20);
+  let amount = 0, name = "", order = "";
 
-  if (!Number.isInteger(amount) || amount < CONFIG.minAmount || amount > CONFIG.maxAmount) {
-    showMsg("fail", "결제 링크가 올바르지 않습니다", `받으신 링크를 다시 확인하시거나 ${CONFIG.tel}로 연락 주세요.`);
-  } else {
+  function openPay(a, n, o) {
+    amount = a; name = n; order = o || "";
     $("vName").textContent = name;
     $("vOrder").textContent = order || "-";
     $("vAmount").textContent = won(amount);
-    if (q.get("cname")) $("cName").value = q.get("cname").slice(0, 20);
-    if (q.get("cphone")) $("cPhone").value = q.get("cphone").replace(/\D/g, "").slice(0, 11);
+    $("shopView").classList.add("hidden");
     $("payView").classList.remove("hidden");
+    window.scrollTo(0, 0);
+  }
 
+  if (q.has("amount")) {
+    // 2-1) 직원이 보낸 결제 링크 (paylink.html)
+    const a = parseInt(q.get("amount"), 10);
+    if (!Number.isInteger(a) || a < CONFIG.minAmount || a > CONFIG.maxAmount) {
+      showMsg("fail", "결제 링크가 올바르지 않습니다", `받으신 링크를 다시 확인하시거나 ${CONFIG.tel}로 연락 주세요.`);
+    } else {
+      if (q.get("cname")) $("cName").value = q.get("cname").slice(0, 20);
+      if (q.get("cphone")) $("cPhone").value = q.get("cphone").replace(/\D/g, "").slice(0, 11);
+      openPay(a, (q.get("name") || "화물운송").slice(0, 40),
+              (q.get("order") || "").replace(/[^0-9A-Za-z-]/g, "").slice(0, 20));
+    }
+  } else {
+    // 2-2) 홈페이지에서 바로 들어온 경우: 상품 선택
+    PRODUCTS.forEach((p) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "prod";
+      b.innerHTML = '<div class="info"><div class="nm"></div><div class="ds"></div></div><div class="pr"></div>';
+      b.querySelector(".nm").textContent = p.name;
+      b.querySelector(".ds").textContent = p.desc;
+      b.querySelector(".pr").textContent = won(p.price);
+      b.addEventListener("click", () => { openPay(p.price, p.name, ""); $("backBtn").classList.remove("hidden"); });
+      $("prodList").appendChild(b);
+    });
+    $("estAmount").addEventListener("blur", () => {
+      const n = parseInt($("estAmount").value.replace(/\D/g, ""), 10);
+      if (Number.isInteger(n)) $("estAmount").value = n.toLocaleString("ko-KR");
+    });
+    $("estBtn").addEventListener("click", () => {
+      const n = parseInt($("estAmount").value.replace(/\D/g, ""), 10);
+      if (!Number.isInteger(n) || n < CONFIG.minAmount || n > CONFIG.maxAmount)
+        return alertBox(`견적 금액을 확인해 주세요. (${won(CONFIG.minAmount)} ~ ${won(CONFIG.maxAmount)})`);
+      openPay(n, ("견적결제 " + ($("estName").value.trim() || "운송·이사")).slice(0, 40), "");
+      $("backBtn").classList.remove("hidden");
+    });
+    $("backBtn").addEventListener("click", () => {
+      $("payView").classList.add("hidden");
+      $("shopView").classList.remove("hidden");
+    });
+    $("shopView").classList.remove("hidden");
+  }
+
+  {
     $("payBtn").addEventListener("click", async () => {
       const fullName = $("cName").value.trim();
       const phone = $("cPhone").value.replace(/\D/g, "");
@@ -172,7 +261,7 @@ if (q.has("paymentId") && (q.has("code") || q.has("transactionType"))) {
           totalAmount: amount,
           currency: "CURRENCY_KRW",
           payMethod: "CARD",
-          customer: { fullName, phoneNumber: phone },
+          customer: { fullName, phoneNumber: phone, email: CONFIG.biz.email }, // 이니시스 필수값(이메일) — 회사 메일로 대체
           redirectUrl: location.origin + location.pathname, // 모바일 결제 후 이 페이지로 돌아옴
         });
         if (!res || res.code) {
